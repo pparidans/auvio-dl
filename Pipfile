@@ -5,3 +5,4 @@ verify_ssl = true
 [packages]
 requests = "*"
 beautifulsoup4 = "*"
+youtube_dl = "*"

@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+import youtube_dl
 
 def fetch(url):
     return requests.get(url).content
@@ -27,11 +28,36 @@ def next_page(base_url, document):
 def catalog_links(url):
     return get_links(url, [])
 
-url = 'https://www.rtbf.be/auvio/archives?pid=9258&contentType=complete'
+class ErrorLogger(object):
+    def debug(self, msg):
+        pass
 
-links = catalog_links(url)
+    def warning(self, msg):
+        pass
 
-print(links)
+    def error(self, msg):
+        print(msg)
 
+def ydl_hooks(d):
+    if d['status'] == 'finished':
+        print('Done downloading, now converting ...')
 
+ydl_opts = {
+    'format': 'bestaudio/best',
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'aac',
+        'preferredquality': '256',
+    }],
+    'logger': ErrorLogger(),
+    'progress_hooks': [ydl_hooks],
+    'download_archive': '.auviocache',
+}
+
+initial_url = 'https://www.rtbf.be/auvio/archives?pid=9258&contentType=complete'
+
+links = catalog_links(initial_url)
+
+with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    ydl.download(links)
 
