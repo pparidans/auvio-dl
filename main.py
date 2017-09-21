@@ -46,7 +46,7 @@ ydl_opts = {
     'format': 'bestaudio/best',
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'aac',
+        'preferredcodec': 'm4a',
         'preferredquality': '256',
     }],
     'logger': ErrorLogger(),
