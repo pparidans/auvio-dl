@@ -2,15 +2,27 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import youtube_dl
+import re
 
 def fetch(url):
     return requests.get(url).content
 
+def get_title(header):
+    title = header.find('h5')
+    if title is None:
+        title = header.find('h4')
+    pattern = re.compile(re.escape('HISTOIRE -'), re.IGNORECASE)
+    txt = pattern.sub('', title.text)
+    return txt.strip()
+
+def get_url(header):
+    return header.find('a')['href']
+
 def get_links(url, links):
     html = fetch(url)
     document = BeautifulSoup(html, 'html.parser')
-    a_tags = document.select('.rtbf-lis-only article header a')
-    collected_links = links + list(map( (lambda a:a['href']), a_tags))
+    headers = document.select('article.rtbf-media-li header')
+    collected_links = links + list(map( (lambda h:{'title': get_title(h), 'url': get_url(h)}), headers))
     follow_up = next_page(url, document)
     if follow_up is None:
         return collected_links
@@ -58,6 +70,12 @@ initial_url = 'https://www.rtbf.be/auvio/archives?pid=9258&contentType=complete'
 
 links = catalog_links(initial_url)
 
-with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-    ydl.download(links)
+for link in links:
+    opts = dict(ydl_opts, **{ 
+        'outtmpl': 'downloads/{title}.%(ext)s'.format(**link)
+    })
+    print('Downloading "{title}" [{url}]...'.format(**link))
+    with youtube_dl.YoutubeDL(opts) as ydl:
+        url = link['url']
+        ydl.download([link['url']])
 

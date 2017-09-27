@@ -1,2 +1,4 @@
 .auviocache
-*.m4a
+downloads/*.m4a
+.DS_Store
+.python-version

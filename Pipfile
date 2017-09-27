@@ -3,6 +3,10 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [packages]
-requests = "*"
-beautifulsoup4 = "*"
-youtube_dl = "*"
+
+requests = "2.18"
+"beautifulsoup4" = "4.6"
+"youtube-dl" = "2017.9"
+
+[requires]
+python_version = "3.6"
